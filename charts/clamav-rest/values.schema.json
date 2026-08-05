@@ -1,0 +1,147 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "replicaCount": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "image": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "type": "string"
+        },
+        "tag": {
+          "type": "string"
+        },
+        "digest": {
+          "type": "string"
+        },
+        "pullPolicy": {
+          "type": "string"
+        },
+        "pullSecrets": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "service": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "annotations": {
+          "type": "object"
+        }
+      }
+    },
+    "resources": {
+      "type": "object"
+    },
+    "tmpfs": {
+      "type": "object",
+      "properties": {
+        "sizeLimit": {
+          "type": "string"
+        }
+      }
+    },
+    "env": {
+      "type": "object",
+      "additionalProperties": {
+        "type": [
+          "string",
+          "number",
+          "boolean"
+        ]
+      }
+    },
+    "extraEnv": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "existingSecret": {
+      "type": "string"
+    },
+    "oidc": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "issuerUrl": {
+          "type": "string",
+        },
+        "audience": {
+          "type": "string"
+        },
+        "clientId": {
+          "type": "string"
+        },
+        "allowedAlgorithms": {
+          "type": "string"
+        },
+        "jwksCacheTtl": {
+          "type": "string"
+        },
+        "jwksStaleTtl": {
+          "type": "string"
+        },
+        "clockSkew": {
+          "type": "string"
+        },
+        "httpTimeout": {
+          "type": "string"
+        }
+      }
+    },
+    "corsOrigins": {
+      "type": "string"
+    },
+    "clamav": {
+      "type": "object"
+    },
+    "networkPolicy": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "egress": {
+          "type": "boolean"
+        },
+        "ingressFrom": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "podDisruptionBudget": {
+      "type": "object"
+    },
+    "ingress": {
+      "type": "object"
+    },
+    "gateway": {
+      "type": "object"
+    },
+    "serviceMonitor": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}
