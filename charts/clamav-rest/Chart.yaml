@@ -1,0 +1,23 @@
+apiVersion: v2
+name: clamav-rest
+description: Production-ready ClamAV REST gateway with optional OIDC authentication
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+home: https://github.com/teudanrichard/clamav-rest
+sources:
+  - https://github.com/teudanrichard/clamav-rest
+  - https://hub.docker.com/r/rtlabsio/clamav-rest
+keywords:
+  - clamav
+  - antivirus
+  - malware-scanning
+  - fastapi
+  - oidc
+maintainers:
+  - name: rtlabsio
+    url: https://github.com/teudanrichard
+annotations:
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/category: security
+  artifacthub.io/containsSecurityUpdates: "false"

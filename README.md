@@ -119,6 +119,10 @@ OIDC is completely inactive (and its module is not imported) unless `CLAMR_OIDC_
 
 Generic providers and Keycloak realm issuers are supported. For Keycloak, set the issuer to `https://keycloak.example/realms/<realm>`, audience to the API audience mapper value, and optionally client ID to enforce `azp`. Startup fails closed if discovery or initial keys cannot be loaded.
 
+## Kubernetes Helm deployment
+
+A Helm chart is provided at `charts/clamav-rest` for the gateway, optional ClamAV sidecar service, persistent signatures, OIDC settings, Traefik Ingress, Gateway API, and optional monitoring/network policies. Run `helm lint charts/clamav-rest` and set an immutable image digest before production deployment.
+
 ## Production deployment
 
 - Terminate TLS and enforce request-body and rate limits at ingress; `deploy/traefik.yml` and `deploy/traefik-dynamic.yml` is a reference. OIDC bearer validation is optional and enabled only with `CLAMR_OIDC_ENABLED=true`.

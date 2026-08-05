@@ -1,0 +1,81 @@
+{{- if .Values.clamav.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "clamav-rest.fullname" . }}-clamav
+  labels:
+    {{- include "clamav-rest.labels" . | nindent 4 }}
+    app.kubernetes.io/component: clamav
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "clamav-rest.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: clamav
+  ports:
+    - name: clamd
+      port: {{ .Values.clamav.service.port }}
+      targetPort: clamd
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "clamav-rest.fullname" . }}-clamav
+  labels:
+    {{- include "clamav-rest.labels" . | nindent 4 }}
+    app.kubernetes.io/component: clamav
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "clamav-rest.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: clamav
+  template:
+    metadata:
+      labels:
+        {{- include "clamav-rest.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: clamav
+    spec:
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: clamav
+          image: {{ include "clamav-rest.clamavImage" . | quote }}
+          imagePullPolicy: {{ .Values.clamav.image.pullPolicy }}
+          ports:
+            - name: clamd
+              containerPort: {{ .Values.clamav.service.port }}
+          livenessProbe:
+            tcpSocket:
+              port: clamd
+            initialDelaySeconds: {{ .Values.clamav.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.clamav.probes.liveness.periodSeconds }}
+          readinessProbe:
+            tcpSocket:
+              port: clamd
+            initialDelaySeconds: {{ .Values.clamav.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.clamav.probes.readiness.periodSeconds }}
+          resources: {{- toYaml .Values.clamav.resources | nindent 12 }}
+          volumeMounts:
+            - name: signatures
+              mountPath: /var/lib/clamav
+      volumes:
+        - name: signatures
+          persistentVolumeClaim:
+            claimName: {{ include "clamav-rest.fullname" . }}-clamav
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "clamav-rest.fullname" . }}-clamav
+  labels:
+    {{- include "clamav-rest.labels" . | nindent 4 }}
+spec:
+  accessModes: {{- toYaml .Values.clamav.persistence.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.clamav.persistence.size }}
+  {{- if .Values.clamav.persistence.storageClass }}
+  storageClassName: {{ .Values.clamav.persistence.storageClass | quote }}
+  {{- end }}
+{{- end }}

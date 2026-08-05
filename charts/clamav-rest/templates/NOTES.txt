@@ -1,0 +1,10 @@
+ClamAV REST Gateway has been installed.
+
+Service:
+  {{ include "clamav-rest.fullname" . }}:{{ .Values.service.port }}
+
+Health:
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "clamav-rest.fullname" . }} 8000:{{ .Values.service.port }}
+  curl http://127.0.0.1:8000/health
+
+Use an immutable image digest in production. OIDC is enabled only when oidc.enabled=true and requires issuerUrl and audience.

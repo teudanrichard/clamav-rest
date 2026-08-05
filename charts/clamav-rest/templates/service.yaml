@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "clamav-rest.fullname" . }}
+  labels:
+    {{- include "clamav-rest.labels" . | nindent 4 }}
+  {{- with .Values.service.annotations }}annotations: {{ toYaml . | nindent 4 }}{{ end }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    {{- include "clamav-rest.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP

@@ -1,0 +1,158 @@
+replicaCount: 1
+
+image:
+  repository: rtlabsio/clamav-rest
+  tag: ""
+  digest: ""
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automount: false
+  annotations: {}
+
+podAnnotations: {}
+podLabels: {}
+
+securityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: [ALL]
+
+service:
+  type: ClusterIP
+  port: 8000
+  annotations: {}
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: "1"
+    memory: 512Mi
+
+tmpfs:
+  sizeLimit: 64Mi
+
+probes:
+  liveness:
+    path: /health
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+  readiness:
+    path: /health/clamav
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 6
+
+terminationGracePeriodSeconds: 30
+
+env:
+  CLAMR_DOCS_ENABLED: "false"
+  CLAMR_METRICS_ENABLED: "false"
+  CLAMR_MAX_UPLOAD_SIZE: "26214400"
+  CLAMR_MAX_CONCURRENT_SCANS: "4"
+  CLAMR_MAX_CONCURRENT_UPLOADS: "4"
+  CLAMR_SCAN_TIMEOUT: "120"
+  CLAMR_SCAN_QUEUE_TIMEOUT: "10"
+  CLAMR_LOG_LEVEL: INFO
+extraEnv: []
+
+# Existing secret keys are injected as CLAMR_* environment variables.
+existingSecret: ""
+
+# Set OIDC values only when enabling authentication. Prefer existingSecret for credentials/config.
+oidc:
+  enabled: false
+  issuerUrl: ""
+  audience: ""
+  clientId: ""
+  allowedAlgorithms: "RS256"
+  jwksCacheTtl: "300"
+  jwksStaleTtl: "900"
+  clockSkew: "30"
+  httpTimeout: "5"
+
+corsOrigins: ""
+
+clamav:
+  enabled: true
+  image:
+    repository: clamav/clamav
+    tag: ""
+    digest: sha256:d06c1d6a451d616e1dd79b42f44c8c8c291bba9cf4e75ebc4d0e43c1c6dd87bb
+    pullPolicy: IfNotPresent
+  service:
+    port: 3310
+  resources:
+    requests:
+      cpu: 250m
+      memory: 1Gi
+    limits:
+      cpu: "2"
+      memory: 2Gi
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClass: ""
+    accessModes: [ReadWriteOnce]
+  probes:
+    liveness:
+      initialDelaySeconds: 60
+      periodSeconds: 30
+    readiness:
+      initialDelaySeconds: 60
+      periodSeconds: 15
+
+networkPolicy:
+  enabled: false
+  egress: false
+  ingressFrom: []
+
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+
+ingress:
+  enabled: false
+  className: traefik
+  annotations: {}
+  hosts:
+    - host: clamr.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+gateway:
+  enabled: false
+  gatewayClassName: traefik
+  listeners:
+    - name: https
+      protocol: HTTPS
+      port: 443
+      hostname: clamr.example.com
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: clamr-tls
+  annotations: {}
+
+serviceMonitor:
+  enabled: false
+  interval: 30s
+  labels: {}

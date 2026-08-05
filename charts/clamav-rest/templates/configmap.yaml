@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "clamav-rest.fullname" . }}
+  labels:
+    {{- include "clamav-rest.labels" . | nindent 4 }}
+data:
+  CLAMR_BACKEND_HOST: {{ if .Values.clamav.enabled }}{{ printf "%s-clamav" (include "clamav-rest.fullname" .) | quote }}{{ else }}{{ "127.0.0.1" | quote }}{{ end }}
+  CLAMR_BACKEND_PORT: "{{ .Values.clamav.service.port }}"
+  CLAMR_OIDC_ENABLED: {{ .Values.oidc.enabled | quote }}
+  {{- if .Values.oidc.enabled }}
+  CLAMR_OIDC_ISSUER_URL: {{ .Values.oidc.issuerUrl | quote }}
+  CLAMR_OIDC_AUDIENCE: {{ .Values.oidc.audience | quote }}
+  CLAMR_OIDC_CLIENT_ID: {{ .Values.oidc.clientId | quote }}
+  CLAMR_OIDC_ALLOWED_ALGORITHMS: {{ .Values.oidc.allowedAlgorithms | quote }}
+  CLAMR_OIDC_JWKS_CACHE_TTL: {{ .Values.oidc.jwksCacheTtl | quote }}
+  CLAMR_OIDC_JWKS_STALE_TTL: {{ .Values.oidc.jwksStaleTtl | quote }}
+  CLAMR_OIDC_CLOCK_SKEW: {{ .Values.oidc.clockSkew | quote }}
+  CLAMR_OIDC_HTTP_TIMEOUT: {{ .Values.oidc.httpTimeout | quote }}
+  {{- end }}
+  CLAMR_CORS_ORIGINS: {{ .Values.corsOrigins | quote }}
+  {{- range $key, $value := .Values.env }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
