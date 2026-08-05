@@ -61,6 +61,32 @@ jobs:
           CLAMR_BACKEND_PORT: "3310"
         run: pytest tests/test_integration.py
 
+  dockerhub-docs:
+    needs: quality
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish Docker Hub description
+        env:
+          DOCKERHUB_USERNAME: rtlabsio
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          auth_response="$(curl --fail --silent --show-error \
+            --header 'Content-Type: application/json' \
+            --data "$(jq -n --arg username "$DOCKERHUB_USERNAME" --arg password "$DOCKERHUB_TOKEN" '{username: $username, password: $password}')" \
+            https://hub.docker.com/v2/users/login/)"
+          jwt="$(jq -er '.token' <<<"$auth_response")"
+          jq -n --rawfile description DOCKERHUB_README.md '{full_description: $description}' > /tmp/dockerhub-description.json
+          curl --fail --silent --show-error --request PATCH \
+            --header "Authorization: JWT $jwt" \
+            --header 'Content-Type: application/json' \
+            --data @/tmp/dockerhub-description.json \
+            https://hub.docker.com/v2/repositories/rtlabsio/clamav-rest/
+
   image:
     needs: [quality, integration]
     if: github.event_name == 'push'
