@@ -3,7 +3,7 @@
 ClamAV REST is a production-oriented asynchronous HTTP gateway for scanning uploads with ClamAV.
 
 - Source and issue tracker: https://github.com/teudanrichard/clamav-rest
-- Helm chart and releases: https://artifacthub.io/
+- Helm chart and releases: https://artifacthub.io/packages/search?repo=clamav-rest
 - Image: https://hub.docker.com/r/rtlabsio/clamav-rest
 
 ## Contents

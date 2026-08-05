@@ -27,4 +27,8 @@ annotations:
       url: https://github.com/teudanrichard/clamav-rest/tree/main/charts/clamav-rest
     - name: Source
       url: https://github.com/teudanrichard/clamav-rest
+    - name: Docker image
+      url: https://hub.docker.com/r/rtlabsio/clamav-rest
+    - name: Artifact Hub
+      url: https://artifacthub.io/packages/search?repo=clamav-rest
   artifacthub.io/containsSecurityUpdates: "false"

@@ -4,7 +4,9 @@
 
 # ClamAV HTTP Gateway
 
-An asynchronous HTTP gateway for scanning untrusted data with ClamAV. The API speaks ClamAV's framed `INSTREAM` protocol over TCP or a Unix socket, applies bounded concurrency and upload limits, and returns typed clean/infected results.
+An asynchronous HTTP gateway for scanning untrusted data with ClamAV.
+
+[GitHub](https://github.com/teudanrichard/clamav-rest) · [Docker Hub](https://hub.docker.com/r/rtlabsio/clamav-rest) · [Artifact Hub](https://artifacthub.io/packages/search?repo=clamav-rest) The API speaks ClamAV's framed `INSTREAM` protocol over TCP or a Unix socket, applies bounded concurrency and upload limits, and returns typed clean/infected results.
 
 ## Architecture
 
