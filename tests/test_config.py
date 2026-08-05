@@ -26,6 +26,18 @@ def test_oidc_requires_issuer_and_audience():
         Settings(oidc_enabled=True)
 
 
+def test_disabled_oidc_accepts_empty_optional_environment_values(monkeypatch):
+    monkeypatch.setenv("CLAMR_OIDC_ISSUER_URL", "")
+    monkeypatch.setenv("CLAMR_OIDC_AUDIENCE", "")
+    monkeypatch.setenv("CLAMR_OIDC_CLIENT_ID", "")
+
+    settings = Settings(oidc_enabled=False)
+
+    assert settings.oidc_issuer_url is None
+    assert settings.oidc_audience is None
+    assert settings.oidc_client_id is None
+
+
 def test_oidc_algorithms_are_parsed_and_restricted(monkeypatch):
     monkeypatch.setenv("CLAMR_OIDC_ALLOWED_ALGORITHMS", "RS256,ES256")
     assert Settings().oidc_allowed_algorithms == ["RS256", "ES256"]

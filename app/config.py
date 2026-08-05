@@ -60,6 +60,13 @@ class Settings(BaseSettings):
     oidc_clock_skew: int = Field(default=30, ge=0, le=300)
     oidc_http_timeout: float = Field(default=5.0, gt=0)
 
+    @field_validator("oidc_issuer_url", "oidc_audience", "oidc_client_id", mode="before")
+    @classmethod
+    def empty_optional_oidc_values_are_unset(cls, value: object) -> object:
+        if isinstance(value, str) and not value.strip():
+            return None
+        return value
+
     @field_validator(
         "cors_origins", "oidc_allowed_algorithms", "oidc_required_scopes", mode="before"
     )
