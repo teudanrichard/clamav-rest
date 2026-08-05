@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<title>clamav-rest concept 2 color icon</title>
+
+    <g id="standalone-icon" transform="translate(0 0) scale(1)">
+      <!-- Open C-shaped gateway -->
+      <path id="standalone-gateway"
+        d="M356 92
+           C320 64 278 50 232 50
+           C126 50 50 128 50 256
+           C50 384 126 462 232 462
+           C278 462 320 448 356 420"
+        fill="none" stroke="#2563EB" stroke-width="54" stroke-linecap="round"/>
+
+      <!-- Scan rails -->
+      <g id="standalone-scan-rails" fill="none" stroke="#22D3EE" stroke-width="16" stroke-linecap="round">
+        <path d="M320 144 H462"/>
+        <path d="M320 256 H462"/>
+        <path d="M320 368 H462"/>
+      </g>
+
+      <!-- Moving packet / file -->
+      <g id="standalone-packet">
+        <rect x="182" y="170" width="148" height="172" rx="24" fill="#0F172A"/>
+        <path d="M282 170 V218 H330" fill="none" stroke="#FFFFFF" stroke-width="14" stroke-linejoin="round"/>
+        <path d="M215 262 H296" fill="none" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round"/>
+        <path d="M215 300 H274" fill="none" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round"/>
+      </g>
+
+      <!-- Approved result -->
+      <circle id="standalone-result" cx="372" cy="256" r="48" fill="#10B981"/>
+      <path id="standalone-check" d="M348 256 L366 274 L398 236"
+            fill="none" stroke="#FFFFFF" stroke-width="14"
+            stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    
+</svg>
