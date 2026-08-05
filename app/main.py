@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.responses import JSONResponse
 from starlette.datastructures import UploadFile
+from starlette.formparsers import MultiPartException, MultiPartParser
 
 from app.auth import require_auth
 from app.config import Settings, get_settings
@@ -45,6 +46,11 @@ SCAN_ERRORS = {
     504: {"model": ErrorResponse, "description": "The scan exceeded its deadline"},
     **BACKEND_ERROR,
 }
+MULTIPART_OVERHEAD_ALLOWANCE = 1024 * 1024
+
+
+class MultipartBodyTooLarge(MultiPartException):
+    """Signal a bounded multipart parser overflow while preserving tempfile cleanup."""
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -229,11 +235,33 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             raise HTTPException(
                 status.HTTP_429_TOO_MANY_REQUESTS, "upload capacity is currently exhausted"
             ) from exc
-        file: UploadFile | None = None
         try:
-            async with request.form(
-                max_files=1, max_fields=0, max_part_size=settings.max_upload_size
-            ) as form:
+            body_limit = settings.max_upload_size + MULTIPART_OVERHEAD_ALLOWANCE
+
+            async def bounded_body() -> AsyncIterator[bytes]:
+                received = 0
+                async for chunk in request.stream():
+                    received += len(chunk)
+                    if received > body_limit:
+                        raise MultipartBodyTooLarge(
+                            f"multipart body exceeds the {body_limit}-byte transport limit"
+                        )
+                    yield chunk
+
+            parser = MultiPartParser(
+                headers=request.headers,
+                stream=bounded_body(),
+                max_files=1,
+                max_fields=0,
+                max_part_size=settings.max_upload_size,
+            )
+            try:
+                form = await parser.parse()
+            except MultipartBodyTooLarge as exc:
+                raise HTTPException(status.HTTP_413_CONTENT_TOO_LARGE, str(exc)) from exc
+            except MultiPartException as exc:
+                raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from exc
+            try:
                 candidate = form.get("file")
                 if not isinstance(candidate, UploadFile):
                     raise HTTPException(
@@ -247,9 +275,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                         yield chunk
 
                 return await perform_scan(request, clamav, chunks(), file.filename)
+            finally:
+                await form.close()
         finally:
-            if file is not None:
-                await file.close()
             request.app.state.upload_slots.release()
 
     @protected.post("/scan/stream", response_model=ScanResult, responses=SCAN_ERRORS, tags=["scan"])

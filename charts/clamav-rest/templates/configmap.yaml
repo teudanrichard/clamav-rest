@@ -12,6 +12,7 @@ data:
   CLAMR_OIDC_ISSUER_URL: {{ .Values.oidc.issuerUrl | quote }}
   CLAMR_OIDC_AUDIENCE: {{ .Values.oidc.audience | quote }}
   CLAMR_OIDC_CLIENT_ID: {{ .Values.oidc.clientId | quote }}
+  CLAMR_OIDC_REQUIRED_SCOPES: {{ .Values.oidc.requiredScopes | quote }}
   CLAMR_OIDC_ALLOWED_ALGORITHMS: {{ .Values.oidc.allowedAlgorithms | quote }}
   CLAMR_OIDC_JWKS_CACHE_TTL: {{ .Values.oidc.jwksCacheTtl | quote }}
   CLAMR_OIDC_JWKS_STALE_TTL: {{ .Values.oidc.jwksStaleTtl | quote }}

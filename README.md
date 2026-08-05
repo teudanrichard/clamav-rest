@@ -6,6 +6,8 @@
 
 An asynchronous HTTP gateway for scanning untrusted data with ClamAV.
 
+It is intentionally a narrow, stateless boundary for services that need HTTP streaming, predictable resource limits, health signals, and optional bearer authentication without exposing clamd. It is not a quarantine system, file store, URL fetcher, or guarantee that clean content is safe.
+
 [GitHub](https://github.com/teudanrichard/clamav-rest) · [Docker Hub](https://hub.docker.com/r/rtlabsio/clamav-rest) · [Artifact Hub](https://artifacthub.io/packages/helm/clamav-rest/clamav-rest)
 
 The API speaks ClamAV's framed `INSTREAM` protocol over TCP or a Unix socket, applies bounded concurrency and upload limits, and returns typed clean/infected results.
@@ -88,7 +90,7 @@ Errors use `{"detail":"..."}`. Important statuses are `413` for the gateway limi
 
 ### Multipart versus raw streaming
 
-Use `/scan/stream` for large or untrusted inputs. It forwards request chunks directly to clamd and enforces the byte limit while reading. `/scan/file` acquires bounded upload admission before parsing, accepts exactly one file field, and uses a spooled temporary file. The supplied container bounds temporary storage with `/tmp` tmpfs; the application and ingress both enforce limits.
+Use `/scan/stream` for large or untrusted inputs. It forwards request chunks directly to clamd and enforces the byte limit while reading. `/scan/file` acquires bounded upload admission before parsing, accepts exactly one file field, and uses a spooled temporary file. The supplied container bounds temporary storage with `/tmp` tmpfs; the application enforces both encoded multipart-body and decoded file limits. Size custom tmpfs storage above `MAX_CONCURRENT_UPLOADS × (MAX_UPLOAD_SIZE + 1 MiB)`, plus headroom, and enforce the same or a smaller limit at ingress.
 
 ## Configuration
 
@@ -117,6 +119,7 @@ New deployments should use the service-specific `CLAMR_` prefix. Legacy unprefix
 | `CLAMR_OIDC_ISSUER_URL` | unset | Exact issuer and discovery base URL; required when enabled |
 | `CLAMR_OIDC_AUDIENCE` | unset | Required API audience |
 | `CLAMR_OIDC_CLIENT_ID` | unset | Optional required `azp` claim (useful with Keycloak) |
+| `CLAMR_OIDC_REQUIRED_SCOPES` | empty | Comma-separated scopes that every protected request token must contain |
 | `CLAMR_OIDC_ALLOWED_ALGORITHMS` | `RS256` | Comma-separated asymmetric JWT algorithms |
 | `CLAMR_OIDC_JWKS_CACHE_TTL` | `300` | Seconds before JWKS refresh |
 | `CLAMR_OIDC_JWKS_STALE_TTL` | `900` | Maximum stale-key fallback during provider outage |
@@ -127,7 +130,7 @@ New deployments should use the service-specific `CLAMR_` prefix. Legacy unprefix
 
 ## Optional OIDC authentication
 
-OIDC is completely inactive (and its module is not imported) unless `CLAMR_OIDC_ENABLED=true`. When enabled, discovery must report the exact configured issuer and an HTTPS JWKS URI. The service verifies signature, algorithm allowlist, issuer, audience, expiry, issued-at time, and optional `azp`. Key rotation refreshes on an unknown `kid`; bounded stale keys preserve availability during short provider outages. Liveness and ClamAV readiness remain public for orchestrators; scan, version, and documentation routes require `Authorization: Bearer <token>`.
+OIDC is completely inactive (and its module is not imported) unless `CLAMR_OIDC_ENABLED=true`. When enabled, discovery must report the exact configured issuer and an HTTPS JWKS URI. The service verifies signature, algorithm allowlist, issuer, audience, expiry, issued-at time, optional `azp`, and every configured required scope. Key rotation refreshes on an unknown `kid`; bounded stale keys preserve availability during short provider outages. Liveness and ClamAV readiness remain public for orchestrators; scan, version, and documentation routes require `Authorization: Bearer <token>`.
 
 Generic providers and Keycloak realm issuers are supported. For Keycloak, set the issuer to `https://keycloak.example/realms/<realm>`, audience to the API audience mapper value, and optionally client ID to enforce `azp`. Startup fails closed if discovery or initial keys cannot be loaded.
 
@@ -167,7 +170,7 @@ pytest
 pip-audit --requirement requirements.lock
 ```
 
-Run the API locally with `uvicorn app.main:app --reload`. GitHub Actions runs quality checks, real-ClamAV integration tests, builds and smoke-tests a commit-SHA image, audits dependencies, generates an SBOM, fails on HIGH/CRITICAL image findings, publishes to Docker Hub, and signs tagged releases. See `docs/production.md` for ingress, alerts, identity outages, and measured capacity guidance.
+Run the API locally with `uvicorn app.main:app --reload`. Pull requests are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md). Compatibility is tested on Python 3.13, the pinned ClamAV container, and rendered Helm manifests; other Python 3.11+ and supported Kubernetes versions are best-effort until they are added to CI. GitHub Actions runs quality checks, real-ClamAV integration tests, builds and smoke-tests a commit-SHA image, audits dependencies, generates an SBOM, fails on HIGH/CRITICAL image findings, publishes to Docker Hub, and signs tagged releases. See `docs/production.md` for ingress, alerts, identity outages, and measured capacity guidance.
 
 ## Security
 

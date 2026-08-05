@@ -22,11 +22,18 @@ jobs:
           python-version: "3.13"
           cache: pip
           cache-dependency-path: requirements-dev.lock
+      - uses: azure/setup-helm@v4
       - run: pip install --require-hashes -r requirements-dev.lock
       - run: pip-audit --requirement requirements.lock
       - run: ruff check .
       - run: ruff format --check .
       - run: pytest -W error
+      - name: Validate deployment manifests
+        run: |
+          docker compose config --quiet
+          helm lint charts/clamav-rest
+          helm template clamr charts/clamav-rest > /dev/null
+          helm template clamr charts/clamav-rest --set oidc.enabled=true --set oidc.issuerUrl=https://id.example/realms/clamr --set oidc.audience=clamr-api --set oidc.requiredScopes=scan --set ingress.enabled=true --set gateway.enabled=true --set serviceMonitor.enabled=true --set networkPolicy.enabled=true > /dev/null
       - name: Validate release tag
         if: startsWith(github.ref, 'refs/tags/')
         run: test "${GITHUB_REF_NAME}" = "v$(cat VERSION)"

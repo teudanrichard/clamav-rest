@@ -49,6 +49,7 @@ The chart is published automatically for each semantic release and indexed on [A
 | `env.CLAMR_METRICS_ENABLED` | Enable Prometheus metrics | `false` |
 | `oidc.enabled` | Enable OIDC authentication | `false` |
 | `oidc.issuerUrl` / `oidc.audience` | OIDC discovery issuer and API audience | empty |
+| `oidc.requiredScopes` | Scopes required on every protected request | empty |
 | `ingress.enabled` | Create an Ingress (Traefik by default) | `false` |
 | `gateway.enabled` | Create a Gateway API HTTPRoute | `false` |
 | `clamav.persistence.size` | Signature database volume size | `5Gi` |

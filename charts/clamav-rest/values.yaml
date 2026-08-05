@@ -43,7 +43,7 @@ resources:
     memory: 512Mi
 
 tmpfs:
-  sizeLimit: 64Mi
+  sizeLimit: 128Mi
 
 probes:
   liveness:
@@ -81,6 +81,7 @@ oidc:
   issuerUrl: ""
   audience: ""
   clientId: ""
+  requiredScopes: ""
   allowedAlgorithms: "RS256"
   jwksCacheTtl: "300"
   jwksStaleTtl: "900"

@@ -51,6 +51,7 @@ class Settings(BaseSettings):
     oidc_issuer_url: AnyHttpUrl | None = None
     oidc_audience: str | None = None
     oidc_client_id: str | None = None
+    oidc_required_scopes: Annotated[list[str], NoDecode] = Field(default_factory=list)
     oidc_allowed_algorithms: Annotated[list[str], NoDecode] = Field(
         default_factory=lambda: ["RS256"]
     )
@@ -59,7 +60,9 @@ class Settings(BaseSettings):
     oidc_clock_skew: int = Field(default=30, ge=0, le=300)
     oidc_http_timeout: float = Field(default=5.0, gt=0)
 
-    @field_validator("cors_origins", "oidc_allowed_algorithms", mode="before")
+    @field_validator(
+        "cors_origins", "oidc_allowed_algorithms", "oidc_required_scopes", mode="before"
+    )
     @classmethod
     def parse_origins(cls, value: object) -> object:
         if isinstance(value, str) and not value.lstrip().startswith("["):
@@ -77,6 +80,10 @@ class Settings(BaseSettings):
             for alg in self.oidc_allowed_algorithms
         ):
             raise ValueError("OIDC_ALLOWED_ALGORITHMS contains an unsafe or unsupported algorithm")
+        if any(
+            any(character.isspace() for character in scope) for scope in self.oidc_required_scopes
+        ):
+            raise ValueError("OIDC_REQUIRED_SCOPES entries cannot contain whitespace")
         return self
 
 

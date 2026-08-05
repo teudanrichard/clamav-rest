@@ -141,6 +141,20 @@ async def test_stale_keys_survive_temporary_provider_outage():
 
 
 @pytest.mark.asyncio
+async def test_required_scopes_are_enforced():
+    private, public = keypair("key-1")
+    transport, _ = transport_for([[public]])
+    async with httpx.AsyncClient(transport=transport) as client:
+        auth = OIDCAuthenticator(settings(oidc_required_scopes=["scan"]), client)
+        await auth.start()
+        with pytest.raises(HTTPException) as error:
+            await auth.authenticate("Bearer " + token(private, scope="profile"))
+        claims = await auth.authenticate("Bearer " + token(private, scope="profile scan"))
+    assert error.value.status_code == 403
+    assert claims["sub"] == "user-1"
+
+
+@pytest.mark.asyncio
 async def test_discovery_issuer_mismatch_fails_startup():
     _, public = keypair("key-1")
     transport, _ = transport_for([[public]], issuer="https://evil.example")

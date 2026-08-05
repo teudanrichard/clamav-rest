@@ -33,6 +33,11 @@ def test_oidc_algorithms_are_parsed_and_restricted(monkeypatch):
         Settings(oidc_allowed_algorithms=["none"])
 
 
+def test_oidc_required_scopes_are_parsed(monkeypatch):
+    monkeypatch.setenv("CLAMR_OIDC_REQUIRED_SCOPES", "scan, metrics")
+    assert Settings().oidc_required_scopes == ["scan", "metrics"]
+
+
 def test_chunk_cannot_exceed_upload_limit():
     with pytest.raises(ValidationError):
         Settings(max_upload_size=1024, stream_chunk_size=2048)

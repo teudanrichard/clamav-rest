@@ -109,6 +109,14 @@ class OIDCAuthenticator:
             )
             if self.settings.oidc_client_id and claims.get("azp") != self.settings.oidc_client_id:
                 raise _unauthorized()
+            token_scopes = claims.get("scope", "")
+            scopes = set(token_scopes.split()) if isinstance(token_scopes, str) else set()
+            if not set(self.settings.oidc_required_scopes).issubset(scopes):
+                raise HTTPException(
+                    status.HTTP_403_FORBIDDEN,
+                    "token does not have the required scope",
+                    headers={"WWW-Authenticate": 'Bearer error="insufficient_scope"'},
+                )
             return claims
         except HTTPException:
             raise

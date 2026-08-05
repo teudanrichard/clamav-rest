@@ -145,6 +145,16 @@ def test_upload_limit(client):
     assert response.status_code == 413
 
 
+def test_multipart_transport_limit_is_enforced_before_scan(client):
+    http, clamav, _ = client
+    response = http.post(
+        "/scan/file",
+        files={"file": ("large.bin", b"x" * (1024 * 1024 + 1025))},
+    )
+    assert response.status_code == 413
+    clamav.scan_stream.assert_not_awaited()
+
+
 def test_scan_deadline(client):
     http, clamav, _ = client
 

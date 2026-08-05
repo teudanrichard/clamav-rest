@@ -90,6 +90,9 @@
         "clientId": {
           "type": "string"
         },
+        "requiredScopes": {
+          "type": "string"
+        },
         "allowedAlgorithms": {
           "type": "string"
         },
