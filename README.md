@@ -123,6 +123,8 @@ Generic providers and Keycloak realm issuers are supported. For Keycloak, set th
 
 A Helm chart is provided at `charts/clamav-rest` for the gateway, optional ClamAV sidecar service, persistent signatures, OIDC settings, Traefik Ingress, Gateway API, and optional monitoring/network policies. Run `helm lint charts/clamav-rest` and set an immutable image digest before production deployment.
 
+Semantic-version tags (`vX.Y.Z`) publish the chart automatically to `oci://ghcr.io/teudanrichard/charts`. The chart repository is indexed by [Artifact Hub](https://artifacthub.io/) after the one-time repository registration.
+
 ## Production deployment
 
 - Terminate TLS and enforce request-body and rate limits at ingress; `deploy/traefik.yml` and `deploy/traefik-dynamic.yml` is a reference. OIDC bearer validation is optional and enabled only with `CLAMR_OIDC_ENABLED=true`.

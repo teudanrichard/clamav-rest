@@ -109,8 +109,27 @@ jobs:
           ignore-unfixed: false
           exit-code: "1"
 
+  chart:
+    needs: [quality, integration]
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4
+      - name: Package chart
+        run: helm package charts/clamav-rest --version "${GITHUB_REF_NAME#v}" --app-version "$(cat VERSION)" --destination dist
+      - name: Publish chart to GHCR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "$GH_TOKEN" | helm registry login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          helm push dist/clamav-rest-*.tgz oci://ghcr.io/teudanrichard/charts
+
   release:
-    needs: image
+    needs: [image, chart]
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-24.04
     permissions:
