@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/branding/logo.svg" alt="ClamAV REST" width="720">
+</p>
+
 # ClamAV HTTP Gateway
 
 An asynchronous HTTP gateway for scanning untrusted data with ClamAV. The API speaks ClamAV's framed `INSTREAM` protocol over TCP or a Unix socket, applies bounded concurrency and upload limits, and returns typed clean/infected results.

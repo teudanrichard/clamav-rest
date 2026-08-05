@@ -17,7 +17,7 @@ keywords:
 maintainers:
   - name: rtlabsio
     url: https://github.com/teudanrichard
-icon: https://raw.githubusercontent.com/teudanrichard/clamav-rest/main/charts/clamav-rest/icon.svg
+icon: https://raw.githubusercontent.com/teudanrichard/clamav-rest/main/assets/branding/icon.svg
 annotations:
   artifacthub.io/license: Apache-2.0
   artifacthub.io/category: security
