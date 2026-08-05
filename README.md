@@ -29,6 +29,10 @@ The application and ClamAV run as separate containers. Each has one responsibili
 - Real ClamAV clean/EICAR integration testing and hashed transitive dependency lock
 - Runtime OpenAPI, Swagger UI, and ReDoc documentation
 
+## Docker image
+
+The published image is [`rtlabsio/clamav-rest`](https://hub.docker.com/r/rtlabsio/clamav-rest). See [DOCKERHUB_README.md](DOCKERHUB_README.md) for a ready-to-run Compose example.
+
 ## Start with Docker Compose
 
 ```sh
