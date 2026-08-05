@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/branding/logo.svg" alt="ClamAV REST" width="720">
+  <img src="assets/branding/logo-dark.svg" alt="ClamAV REST" width="720">
 </p>
 
 # ClamAV HTTP Gateway
