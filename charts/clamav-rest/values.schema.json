@@ -82,7 +82,7 @@
           "type": "boolean"
         },
         "issuerUrl": {
-          "type": "string",
+          "type": "string"
         },
         "audience": {
           "type": "string"
