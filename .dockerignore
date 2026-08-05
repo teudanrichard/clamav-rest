@@ -1,5 +1,4 @@
 .git
-.gitlab-ci.yml
 .env
 .venv
 __pycache__

@@ -2,7 +2,7 @@
 
 ## Reporting a vulnerability
 
-Do not open a public issue for a suspected vulnerability. Use GitLab's confidential vulnerability reporting feature or contact the project maintainers through an approved private channel. Include affected versions, reproduction steps, impact, and any suggested mitigation. Avoid including real malware or sensitive data; use the EICAR test file where possible.
+Do not open a public issue for a suspected vulnerability. Use GitHub's private security advisory feature or contact the project maintainers through an approved private channel. Include affected versions, reproduction steps, impact, and any suggested mitigation. Avoid including real malware or sensitive data; use the EICAR test file where possible.
 
 ## Supported versions
 

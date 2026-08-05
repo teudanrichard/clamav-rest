@@ -1,4 +1,4 @@
-"""Create a GitLab Release for the current SemVer tag."""
+"""Create a GitHub Release for the current SemVer tag."""
 
 import json
 import os
