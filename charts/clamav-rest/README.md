@@ -1,6 +1,6 @@
 # ClamAV REST Helm chart
 
-[Source](https://github.com/teudanrichard/clamav-rest) · [Docker image](https://hub.docker.com/r/rtlabsio/clamav-rest) · [Artifact Hub](https://artifacthub.io/packages/search?repo=clamav-rest)
+[Source](https://github.com/teudanrichard/clamav-rest) · [Docker image](https://hub.docker.com/r/rtlabsio/clamav-rest) · [Artifact Hub](https://artifacthub.io/packages/helm/clamav-rest/clamav-rest)
 
 This chart deploys the gateway and an optional private ClamAV deployment with persistent signature storage. It supports Traefik Ingress, Kubernetes Gateway API, optional Prometheus Operator ServiceMonitor, NetworkPolicy, OIDC configuration, and existing Secret injection.
 
