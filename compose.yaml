@@ -1,0 +1,39 @@
+services:
+  gateway:
+    build:
+      context: .
+    image: clamav-http-gateway:local
+    restart: unless-stopped
+    depends_on:
+      clamav:
+        condition: service_healthy
+    ports:
+      - "${API_PORT:-8000}:8000"
+    environment:
+      CLAMR_BACKEND_HOST: clamav
+      CLAMR_BACKEND_PORT: 3310
+      CLAMR_MAX_UPLOAD_SIZE: ${CLAMR_MAX_UPLOAD_SIZE:-26214400}
+      CLAMR_MAX_CONCURRENT_SCANS: ${CLAMR_MAX_CONCURRENT_SCANS:-4}
+      CLAMR_MAX_CONCURRENT_UPLOADS: ${CLAMR_MAX_CONCURRENT_UPLOADS:-4}
+      CLAMR_DOCS_ENABLED: ${CLAMR_DOCS_ENABLED:-true}
+      CLAMR_CORS_ORIGINS: ${CLAMR_CORS_ORIGINS:-}
+      CLAMR_METRICS_ENABLED: ${CLAMR_METRICS_ENABLED:-false}
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+  clamav:
+    # Updated deliberately; keep the digest in sync with the integration CI service.
+    image: clamav/clamav@sha256:d06c1d6a451d616e1dd79b42f44c8c8c291bba9cf4e75ebc4d0e43c1c6dd87bb
+    restart: unless-stopped
+    expose:
+      - "3310"
+    volumes:
+      - clamav-db:/var/lib/clamav
+
+volumes:
+  clamav-db:

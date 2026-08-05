@@ -1,0 +1,41 @@
+# Dynamic configuration. Store certificates and secrets outside the repository.
+http:
+  routers:
+    clamr:
+      entryPoints: [websecure]
+      rule: Host(`clamr.example.com`)
+      service: clamr
+      middlewares: [clamr-rate, clamr-concurrency, clamr-headers]
+      tls: {}
+    clamr-health:
+      entryPoints: [websecure]
+      rule: Host(`clamr.example.com`) && Path(`/health`, `/health/clamav`)
+      service: clamr
+      middlewares: [clamr-headers]
+      tls: {}
+  services:
+    clamr:
+      loadBalancer:
+        servers:
+          - url: http://gateway:8000
+        passHostHeader: true
+  middlewares:
+    clamr-rate:
+      rateLimit:
+        average: 5
+        period: 1s
+        burst: 10
+    clamr-concurrency:
+      inFlightReq:
+        amount: 4
+    clamr-headers:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-Proto: https
+    # Keep the gateway's own CLAMR_MAX_UPLOAD_SIZE as the authoritative byte limit.
+    # Add buffering.maxRequestBodyBytes here only when your traffic policy requires
+    # rejecting oversized bodies before they reach the service; do not buffer streams.
+tls:
+  certificates:
+    - certFile: /run/secrets/tls.crt
+      keyFile: /run/secrets/tls.key

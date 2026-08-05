@@ -1,0 +1,21 @@
+# Traefik static configuration for a Docker/VM deployment.
+# In Kubernetes, prefer the Traefik Gateway API provider instead.
+entryPoints:
+  websecure:
+    address: ":443"
+    transport:
+      respondingTimeouts:
+        readTimeout: 30s
+        writeTimeout: 130s
+        idleTimeout: 180s
+providers:
+  file:
+    filename: /etc/traefik/dynamic.yml
+    watch: true
+api:
+  dashboard: false
+log:
+  format: json
+  level: INFO
+accessLog:
+  format: json
