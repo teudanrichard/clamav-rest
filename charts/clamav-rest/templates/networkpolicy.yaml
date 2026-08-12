@@ -9,6 +9,7 @@ spec:
   podSelector:
     matchLabels:
       {{- include "clamav-rest.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: gateway
   policyTypes:
     - Ingress
     {{- if .Values.networkPolicy.egress }}

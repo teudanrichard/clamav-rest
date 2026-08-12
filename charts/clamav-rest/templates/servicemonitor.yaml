@@ -10,6 +10,7 @@ spec:
   selector:
     matchLabels:
       {{- include "clamav-rest.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: gateway
   endpoints:
     - port: http
       path: /metrics
