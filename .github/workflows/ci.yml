@@ -114,7 +114,7 @@ jobs:
           test "$(docker image inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' "$IMAGE_NAME:$GITHUB_SHA")" = "$GITHUB_SHA"
           test "$(docker image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' "$IMAGE_NAME:$GITHUB_SHA")" = "$(cat VERSION)"
       - name: Generate SBOM
-        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
         with:
           image-ref: ${{ env.IMAGE_NAME }}:${{ github.sha }}
           format: cyclonedx
@@ -126,7 +126,7 @@ jobs:
           path: sbom.cdx.json
           retention-days: 30
       - name: Scan image
-        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
         with:
           image-ref: ${{ env.IMAGE_NAME }}:${{ github.sha }}
           severity: HIGH,CRITICAL
