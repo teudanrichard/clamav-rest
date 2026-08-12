@@ -2,8 +2,8 @@ apiVersion: v2
 name: clamav-rest
 description: Production-ready ClamAV REST gateway with optional OIDC authentication
 type: application
-version: 1.0.3
-appVersion: "1.0.3"
+version: 1.0.6
+appVersion: "1.0.6"
 home: https://github.com/teudanrichard/clamav-rest
 sources:
   - https://github.com/teudanrichard/clamav-rest
@@ -21,7 +21,6 @@ icon: https://raw.githubusercontent.com/teudanrichard/clamav-rest/main/assets/br
 annotations:
   artifacthub.io/license: Apache-2.0
   artifacthub.io/category: security
-  artifacthub.io/signKey: https://github.com/teudanrichard/clamav-rest
   artifacthub.io/links: |
     - name: Documentation
       url: https://github.com/teudanrichard/clamav-rest/tree/main/charts/clamav-rest
