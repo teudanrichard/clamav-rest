@@ -23,6 +23,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.13"
@@ -42,7 +44,10 @@ jobs:
           helm template clamr charts/clamav-rest --set oidc.enabled=true --set oidc.issuerUrl=https://id.example/realms/clamr --set oidc.audience=clamr-api --set oidc.requiredScopes=scan --set ingress.enabled=true --set gateway.enabled=true --set serviceMonitor.enabled=true --set networkPolicy.enabled=true > /dev/null
       - name: Validate release tag
         if: startsWith(github.ref, 'refs/tags/')
-        run: test "${GITHUB_REF_NAME}" = "v$(cat VERSION)"
+        run: |
+          test "${GITHUB_REF_NAME}" = "v$(cat VERSION)"
+          git fetch --no-tags origin main
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main
 
   integration:
     runs-on: ubuntu-24.04
@@ -94,7 +99,9 @@ jobs:
             --data "$(jq -n --arg username "$DOCKERHUB_USERNAME" --arg password "$DOCKERHUB_TOKEN" '{username: $username, password: $password}')" \
             https://hub.docker.com/v2/users/login/)"
           jwt="$(jq -er '.token' <<<"$auth_response")"
-          jq -n --rawfile description DOCKERHUB_README.md '{full_description: $description}' > /tmp/dockerhub-description.json
+          jq -n --rawfile full_description DOCKERHUB_README.md \
+            --arg description 'Secure, bounded FastAPI gateway for streaming file scans through ClamAV.' \
+            '{description: $description, full_description: $full_description}' > /tmp/dockerhub-description.json
           curl --fail --silent --show-error --request PATCH \
             --header "Authorization: JWT $jwt" \
             --header 'Content-Type: application/json' \
@@ -111,9 +118,17 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
       - name: Build image
+        if: github.ref == 'refs/heads/main'
         run: |
           docker build --pull --build-arg VCS_REF="$GITHUB_SHA" --build-arg BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)" --build-arg APP_VERSION="$(cat VERSION)" --tag "$IMAGE_NAME:$GITHUB_SHA" .
           docker run --rm "$IMAGE_NAME:$GITHUB_SHA" python -c 'from app.main import app; assert app.title'
+      - name: Load main commit image for release
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          docker pull "$IMAGE_NAME:$GITHUB_SHA"
+          docker run --rm "$IMAGE_NAME:$GITHUB_SHA" python -c 'from app.main import app; assert app.title'
+          test "$(docker image inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' "$IMAGE_NAME:$GITHUB_SHA")" = "$GITHUB_SHA"
+          test "$(docker image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' "$IMAGE_NAME:$GITHUB_SHA")" = "$(cat VERSION)"
       - name: Generate SBOM
         uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
         with:
@@ -160,6 +175,7 @@ jobs:
         with:
           name: sbom-${{ github.sha }}
       - run: gunzip --stdout image.tar.gz | docker load
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
       - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
           username: rtlabsio
@@ -168,18 +184,29 @@ jobs:
         id: publish
         run: |
           set -euo pipefail
-          docker push "$IMAGE_NAME:$GITHUB_SHA" | tee push.log
-          digest="$(sed -n 's/.*digest: \(sha256:[0-9a-f]\{64\}\).*/\1/p' push.log | tail -n 1)"
+          if [[ "$GITHUB_REF" == refs/heads/main ]]; then
+            docker push "$IMAGE_NAME:$GITHUB_SHA"
+          fi
+          digest="$(docker image inspect --format '{{ index .RepoDigests 0 }}' "$IMAGE_NAME:$GITHUB_SHA")"
+          digest="${digest##*@}"
           [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]
           echo "digest=$digest" >> "$GITHUB_OUTPUT"
       - name: Publish SemVer images
         if: startsWith(github.ref, 'refs/tags/')
         run: |
+          set -euo pipefail
           version="${GITHUB_REF_NAME#v}"
-          docker tag "$IMAGE_NAME:$GITHUB_SHA" "$IMAGE_NAME:$version"
-          docker tag "$IMAGE_NAME:$GITHUB_SHA" "$IMAGE_NAME:$GITHUB_REF_NAME"
-          docker push "$IMAGE_NAME:$version"
-          docker push "$IMAGE_NAME:$GITHUB_REF_NAME"
+          digest="${{ steps.publish.outputs.digest }}"
+          for tag in "$version" "$GITHUB_REF_NAME"; do
+            target="$IMAGE_NAME:$tag"
+            if existing="$(docker buildx imagetools inspect "$target" --format '{{ .Manifest.Digest }}' 2>/dev/null)"; then
+              test "$existing" = "$digest"
+              echo "$target already resolves to the release digest"
+            else
+              docker tag "$IMAGE_NAME:$GITHUB_SHA" "$target"
+              docker push "$target"
+            fi
+          done
       - name: Attest release provenance
         if: startsWith(github.ref, 'refs/tags/')
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
