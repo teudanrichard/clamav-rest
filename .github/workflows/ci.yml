@@ -158,8 +158,7 @@ jobs:
           if [[ "$GITHUB_REF" == refs/heads/main ]]; then
             docker push "$IMAGE_NAME:$GITHUB_SHA"
           fi
-          digest="$(docker image inspect --format '{{ index .RepoDigests 0 }}' "$IMAGE_NAME:$GITHUB_SHA")"
-          digest="${digest##*@}"
+          digest="$(docker buildx imagetools inspect "$IMAGE_NAME:$GITHUB_SHA" --format '{{ .Manifest.Digest }}')"
           [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]
           echo "digest=$digest" >> "$GITHUB_OUTPUT"
       - name: Publish SemVer images

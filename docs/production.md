@@ -13,11 +13,11 @@ CI audits locked Python dependencies, emits a CycloneDX SBOM for the final image
 Verify a release before promotion:
 
 ```sh
-gh attestation verify oci://docker.io/rtlabsio/clamav-rest:v1.0.4 --owner teudanrichard
+gh attestation verify oci://docker.io/rtlabsio/clamav-rest:v1.0.5 --owner teudanrichard
 cosign verify \
   --certificate-identity-regexp '^https://github.com/teudanrichard/clamav-rest/.github/workflows/ci.yml@refs/tags/v[0-9]+\\.[0-9]+\\.[0-9]+$' \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-  docker.io/rtlabsio/clamav-rest:v1.0.4
+  docker.io/rtlabsio/clamav-rest:v1.0.5
 ```
 
 Promote and roll back by digest, never by moving an existing release tag. Record the previously deployed digest before promotion; rollback consists of restoring that digest in Compose or `image.digest` in Helm and redeploying. If any publish job fails after a tag is created, do not move or recreate the tag: correct the failure and rerun the original workflow so every artifact remains tied to the same source commit.
