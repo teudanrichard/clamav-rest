@@ -205,6 +205,7 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4
+      - uses: oras-project/setup-oras@22ce207df3b08e061f537244349aac6ae1d214f6 # v1.2.4
       - name: Package chart
         run: helm package charts/clamav-rest --version "${GITHUB_REF_NAME#v}" --app-version "$(cat VERSION)" --destination dist
       - name: Publish chart to GHCR
@@ -213,6 +214,14 @@ jobs:
         run: |
           echo "$GH_TOKEN" | helm registry login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
           helm push dist/clamav-rest-*.tgz oci://ghcr.io/teudanrichard/charts
+      - name: Publish Artifact Hub repository metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "$GH_TOKEN" | oras login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          oras push ghcr.io/teudanrichard/charts/clamav-rest:artifacthub.io \
+            --config /dev/null:application/vnd.cncf.artifacthub.config.v1+yaml \
+            artifacthub-repo.yml:application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml
 
   release:
     needs: [image-publish, chart]
