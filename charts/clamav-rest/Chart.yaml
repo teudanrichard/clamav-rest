@@ -2,8 +2,8 @@ apiVersion: v2
 name: clamav-rest
 description: Production-ready ClamAV REST gateway with optional OIDC authentication
 type: application
-version: 1.0.5
-appVersion: "1.0.5"
+version: 1.0.6
+appVersion: "1.0.6"
 home: https://github.com/teudanrichard/clamav-rest
 sources:
   - https://github.com/teudanrichard/clamav-rest
