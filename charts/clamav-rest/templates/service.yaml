@@ -4,11 +4,13 @@ metadata:
   name: {{ include "clamav-rest.fullname" . }}
   labels:
     {{- include "clamav-rest.labels" . | nindent 4 }}
+    app.kubernetes.io/component: gateway
   {{- with .Values.service.annotations }}annotations: {{ toYaml . | nindent 4 }}{{ end }}
 spec:
   type: {{ .Values.service.type }}
   selector:
     {{- include "clamav-rest.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: gateway
   ports:
     - name: http
       port: {{ .Values.service.port }}

@@ -1,18 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "clamav-rest.fullname" . }}
+  # A distinct name permits a safe upgrade from early chart versions whose
+  # immutable Deployment selector also matched the ClamAV workload.
+  name: {{ include "clamav-rest.fullname" . }}-gateway
   labels:
     {{- include "clamav-rest.labels" . | nindent 4 }}
+    app.kubernetes.io/component: gateway
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       {{- include "clamav-rest.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: gateway
   template:
     metadata:
       labels:
         {{- include "clamav-rest.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: gateway
         {{- with .Values.podLabels }}{{ toYaml . | nindent 8 }}{{ end }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
