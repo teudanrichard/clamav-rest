@@ -36,6 +36,6 @@ CI concurrency is scoped by pull request or Git ref. A newer run cancels an olde
 
 ## Reviews and releases
 
-Changes reach `main` through pull requests with the `secrets`, `quality`, and `integration` checks passing. The secret scan examines complete Git history with redacted findings; never add a real credential to an allowlist. CODEOWNERS identifies the personal maintainer account for review; security-sensitive changes to authentication, image publication, dependencies, and deployment defaults need explicit maintainer review.
+Changes reach `main` through pull requests with the `secrets`, `quality`, `integration`, and `image-build` checks passing. The secret scan examines complete Git history with redacted findings; never add a real credential to an allowlist. CODEOWNERS identifies the personal maintainer account for review; security-sensitive changes to authentication, image publication, dependencies, and deployment defaults need explicit maintainer review.
 
 Semantic releases use annotated `v*.*.*` tags whose version matches `VERSION` and the Helm chart. The protected `production` environment gates Docker Hub publication, chart publication, signing, attestations, and GitHub Release creation. Never bypass a waiting deployment by publishing the same tag manually.
