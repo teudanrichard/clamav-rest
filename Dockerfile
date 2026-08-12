@@ -23,7 +23,8 @@ RUN addgroup -S -g 10001 gateway \
 WORKDIR /app
 COPY requirements.lock ./
 COPY VERSION ./
-RUN pip install --no-cache-dir --disable-pip-version-check -r requirements.lock
+RUN pip install --no-cache-dir --disable-pip-version-check -r requirements.lock \
+    && pip uninstall --yes msgpack setuptools pip
 COPY --chown=gateway:gateway app ./app
 
 USER 10001:10001
