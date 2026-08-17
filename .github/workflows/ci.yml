@@ -43,7 +43,7 @@ jobs:
           python-version: "3.13"
           cache: pip
           cache-dependency-path: requirements-dev.lock
-      - uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4
+      - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
       - run: pip install --require-hashes -r requirements-dev.lock
       - run: pip-audit --requirement requirements.lock
       - run: ruff check .
@@ -215,7 +215,7 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4
+      - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
       - name: Package chart
         run: helm package charts/clamav-rest --version "${GITHUB_REF_NAME#v}" --app-version "$(cat VERSION)" --destination dist
       - name: Publish chart to GHCR
