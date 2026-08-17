@@ -1,8 +1,8 @@
 -r requirements.txt
-pip-tools==7.6.0
+pip-tools==7.6.1
 httpx==0.28.1
 httpx2==2.10.0
 pip-audit==2.10.1
 pytest==9.1.1
 pytest-asyncio==1.4.0
-ruff==0.16.2
+ruff==0.16.3
