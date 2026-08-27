@@ -17,7 +17,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     API_PORT=8000 \
     CLAMR_VERSION=${APP_VERSION}
 
-RUN addgroup -S -g 10001 gateway \
+RUN apk upgrade --no-cache \
+    && addgroup -S -g 10001 gateway \
     && adduser -S -D -H -u 10001 -G gateway gateway
 
 WORKDIR /app

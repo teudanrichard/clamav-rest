@@ -20,4 +20,4 @@ cosign verify \
   docker.io/rtlabsio/clamav-rest:v1.0.7
 ```
 
-Promote and roll back by digest, never by moving an existing release tag. Record the previously deployed digest before promotion; rollback consists of restoring that digest in Compose or `image.digest` in Helm and redeploying. If any publish job fails after a tag is created, do not move or recreate the tag: correct the failure and rerun the original workflow so every artifact remains tied to the same source commit.
+Promote and roll back by digest, never by moving an existing release tag. Record the previously deployed digest before promotion; rollback consists of restoring that digest in Compose or `image.digest` in Helm and redeploying. Image publication completes and is verified before the chart is published. If any publish job fails after a tag is created, do not move or recreate the tag: correct the failure and rerun the failed jobs from the original workflow so every artifact remains tied to the same source commit.
