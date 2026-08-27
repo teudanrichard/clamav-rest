@@ -17,6 +17,7 @@ concurrency:
 env:
   IMAGE_NAME: rtlabsio/clamav-rest
   IMAGE_SUBJECT: docker.io/rtlabsio/clamav-rest
+  TRIVY_VERSION: v0.74.0
 
 jobs:
   secrets:
@@ -119,8 +120,9 @@ jobs:
           test "$(docker image inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' "$IMAGE_NAME:$GITHUB_SHA")" = "$GITHUB_SHA"
           test "$(docker image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' "$IMAGE_NAME:$GITHUB_SHA")" = "$(cat VERSION)"
       - name: Generate SBOM
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
+          version: ${{ env.TRIVY_VERSION }}
           image-ref: ${{ env.IMAGE_NAME }}:${{ github.sha }}
           format: cyclonedx
           output: sbom.cdx.json
@@ -131,9 +133,11 @@ jobs:
           path: sbom.cdx.json
           retention-days: 30
       - name: Scan image
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
+          version: ${{ env.TRIVY_VERSION }}
           image-ref: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          scanners: vuln
           severity: HIGH,CRITICAL
           ignore-unfixed: false
           exit-code: "1"
