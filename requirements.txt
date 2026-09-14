@@ -4,4 +4,4 @@ python-multipart==0.0.32
 uvicorn[standard]==0.52.4
 prometheus-client==0.26.0
 httpx==0.28.1
-pyjwt[crypto]==2.13.0
+pyjwt[crypto]==2.14.0
